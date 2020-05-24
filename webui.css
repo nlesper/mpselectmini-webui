@@ -1,0 +1,83 @@
+.dropzone.disabled,
+#fanSlider.disabled,
+#gCodeLog.disabled {
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+#rawgCode {
+  margin-bottom: 10px;
+}
+
+#eStop {
+  display: block;
+  margin: 30px auto;
+}
+
+.table {
+  margin-top: 10px;
+  width: 75%;
+}
+
+.table td,
+.table th {
+  vertical-align: middle;
+  height: 50px;
+}
+
+.extrusion-length {
+  margin-bottom: 5px;
+  margin-top: 5px;
+  text-align: center;
+}
+
+.jogitem {
+  text-align: center;
+}
+
+.controlBox {
+  border: 2px solid black;
+  padding: 0px 0px 10px 0px;
+  margin-bottom: 10px;
+}
+
+#movement {
+  background: #d9edf7;
+  text-align: center;
+  margin-bottom: 10px;
+  border-bottom: 2px solid black;
+}
+
+#mainPage {
+  margin-top: 10px;
+}
+
+.form-control {
+  border-radius: .125rem;
+}
+
+.dropzone {
+  border: 2px dashed #dedede;
+  border-radius: .125rem;
+  background: #f5f5f5;
+}
+
+.dropzone .dz-message {
+  color: rgba(0, 0, 0, .54);
+  font-weight: 500;
+  font-size: initial;
+  text-transform: uppercase;
+}
+
+#gCodeLog {
+  min-height: 166.62px;
+  max-height: 166.62px;
+  border: 2px solid black;
+  margin-bottom: 2px;
+  margin-top: 8px;
+  background: #f5f5f5;
+  padding: 2px 10px;
+  overflow: auto;
+  color: #000000;
+  font-size: 13px;
+}

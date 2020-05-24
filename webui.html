@@ -1,0 +1,257 @@
+<html>
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.0/min/dropzone.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.resize.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.time.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.18.0/js/mdb.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/nlesper/mpselectmini-webui@latest/webui.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.18.0/css/mdb.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.0/dropzone.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/nlesper/mpselectmini-webui@latest/webui.min.css">
+</head>
+
+<body>
+  <div id="dropzone" style="display:none;">
+    <form action="/upload" class="dropzone deactivatable disabled" id="mydz" disabled />
+  </div>
+  <div id="mainPage" class="container-fluid">
+    <div class="row">
+      <div class="col">
+        <div class="row hero-unit">
+          <div class="col-lg">
+            <div class="custom-control custom-switch">
+              <input type="checkbox" class="custom-control-input" id="pollingPrinter" checked>
+              <label class="custom-control-label" for="pollingPrinter">Poll printer</label>
+            </div>
+            <div class="custom-control custom-switch">
+              <input type="checkbox" class="custom-control-input" id="dryRunPrint">
+              <label class="custom-control-label" for="dryRunPrint">Dry-run</label>
+            </div>
+          </div>
+          <div class="col-lg">
+            <div style="text-align: center; max-width: 400px; margin:auto auto 30px auto;">
+              <strong>Print Status: <span id="stat">N/A</span></strong>
+              <div class="progress" style="background: #f5f5f5; height: 30px; border: 2px solid black; border-radius: .125rem;">
+                <div class="progress-bar" role="progressbar" id="pgs" style="padding-top: 4px;"></div>
+              </div>
+
+              <div class="row" style="margin-top: 10px;">
+                <div class="col-lg">
+                  <button type="button" class="btn btn-success btn-block z-depth-0 deactivatable disabled" onclick="start_p()" disabled><i class="fa fa-play-circle"></i> Print</button>
+                </div>
+                <div class="col-lg">
+                  <button class="btn btn-danger btn-block z-depth-0 disabled" type="button" onclick="cancel_p()" id="stopprint" disabled><i class="fa fa-stop-circle"></i>
+                    Stop</button>
+                </div>
+              </div>
+              <div class="row" style="margin-top: 10px;">
+                <div class="col">
+                  <button class="btn btn-info btn-block z-depth-0 deactivatable disabled" type="button" onclick="fast_wifi()" disabled><i class="fa fa-wifi"></i>
+                    Fast Wi-Fi</button>
+                </div>
+              </div>
+              <div class="clearfix"></div>
+              <div id="newDropzone" style="margin-top: 10px;"></div>
+            </div>
+
+          </div>
+          <div class="col-lg" style="text-align: center;">
+            <button class="btn btn-danger btn-lg" id="eStop">EMERGENCY STOP</button>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+
+        <div class="row" id="controls">
+          <div class="col-lg">
+            <div id="gCodeLog"></div>
+            <div id="rawgCode" class="input-group">
+              <input class="form-control deactivatable disabled" type="text" name="gcode" id="gcode" placeholder="Send gcode to printer..." disabled>
+              <div class="input-group-append">
+                <button id="sendRAWgCode" class="btn btn-md btn-primary z-depth-0 m-0 deactivatable disabled" disabled><i class="fa fa-paper-plane" aria-hidden="true"></i>
+                  Send</button>
+              </div>
+            </div>
+
+            <div class="col controlBox">
+              <div class="row" style="margin-top: 10px;">
+                <div class="col-4 jogitem">
+                  <div class="col"><strong>X/Y</strong></div>
+                  <button class="btn btn-info jogdial moveIt z-depth-0 p-3 mx-0 deactivatable disabled" data-speed="F2400" data-axis="Y" data-id="1" disabled><i class="fa fa-arrow-up"></i></button>
+                  <br>
+                  <button class="btn btn-info jogdial moveIt z-depth-0 p-3 deactivatable disabled" data-speed="F2400" data-axis="X" data-id="-1" disabled><i class="fa fa-arrow-left"></i></button>
+                  <button class="btn btn-info jogdial homeIt z-depth-0 p-3 mx-0 deactivatable disabled" data-axis="XY" data-id="X0 Y0" disabled><i class="fa fa-home"></i></button>
+                  <button class="btn btn-info jogdial moveIt z-depth-0 p-3 deactivatable disabled" data-speed="F2400" data-axis="X" data-id="1" disabled><i class="fa fa-arrow-right"></i></button>
+                  <br>
+                  <button class="btn btn-info jogdial moveIt z-depth-0 p-3 mx-0 deactivatable disabled" data-speed="F2400" data-axis="Y" data-id="-1" disabled><i class="fa fa-arrow-down"></i></button>
+                </div>
+
+                <div class="col-4 jogitem">
+                  <div class="col"><strong>Z</strong></div>
+                  <button class="btn btn-info jogdial moveIt z-depth-0 p-3 mx-0 deactivatable disabled" data-speed="F2400" data-axis="Z" data-id="1" disabled><i class="fa fa-arrow-up"></i>
+                  </button>
+                  <br>
+                  <button class="btn btn-info jogdial homeIt z-depth-0 p-3 mx-0 deactivatable disabled" data-axis="Z" data-id="Z0" disabled><i class="fa fa-home"></i></button>
+                  <br>
+                  <button class="btn btn-info jogdial moveIt z-depth-0 p-3 mx-0 deactivatable disabled" data-speed="F2400" data-axis="Z" data-id="-1" disabled><i class="fa fa-arrow-down"></i>
+                  </button>
+                </div>
+
+                <div class="col-4 jogitem">
+                  <div class="col"><strong>E</strong></div>
+                  <button class="btn btn-warning jogdial moveIt z-depth-0 p-3 mx-0 deactivatable disabled" data-axis="E" data-speed="F250" data-id="-1" disabled><i class="fa fa-arrow-up"></i>
+                  </button>
+                  <br>
+                  <input class="form-control extrusion-length deactivatable disabled" type="text" id="exl" placeholder="5" style="max-width: 60px; display: inline-block; height: 44px;" disabled />
+                  <br>
+                  <button class="btn btn-warning jogdial moveIt z-depth-0 p-3 mx-0 deactivatable disabled" data-axis="E" data-speed="F100" data-id="1" disabled><i class="fa fa-arrow-down"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-8 jogitem">
+                  <div class="btn-group btn-group-toggle" data-toggle="buttons" style="margin-top: 10px;">
+                    <label class="btn btn-secondary btn-sm z-depth-0 deactivatable disabled">
+                      <input type="radio" name="movl" value="0.1">0.1</label>
+                    <label class="btn btn-secondary btn-sm z-depth-0 deactivatable disabled">
+                      <input type="radio" name="movl" value="1">1</label>
+                    <label class="btn btn-secondary active btn-sm z-depth-0 deactivatable disabled">
+                      <input type="radio" name="movl" value="10" checked>10</label>
+                    <label class="btn btn-secondary btn-sm z-depth-0 deactivatable disabled">
+                      <input type="radio" name="movl" value="50">50</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="clearfix"></div>
+
+          </div>
+
+          <div class="col-lg">
+            <div id="tempChart" style="height: 250px;"></div>
+            <div class="clearfix"></div>
+            <div class="row d-flex justify-content-center">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th scope="col"></th>
+                    <th scope="col" style="text-align: center;"><strong>Actual</strong></th>
+                    <th scope="col" style="text-align: center;"><strong>Target</strong></th>
+                    <th scope="col"><strong>Override</strong></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Extruder</strong></td>
+                    <td style="text-align: center;"><span id="rde">N/A</span></td>
+                    <td style="text-align: center;"><span id="rdeTarget">N/A</span></td>
+                    <td>
+                      <div class="input-group">
+                        <input class="form-control form-control-sm deactivatable disabled" type="text" id="wre" placeholder="Off" style="max-width: 100px;" disabled />
+                        <div class="input-group-append">
+                          <button class="btn btn-success btn-sm z-depth-0 m-0 deactivatable disabled" id="sete" disabled><i class="fa fa-check"></i></button>
+                          <button class="btn btn-danger btn-sm z-depth-0 m-0 deactivatable disabled" id="clre" disabled><i class="fa fa-ban"></i></button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Bed</strong></td>
+                    <td style="text-align: center;"><span id="rdp">N/A</span></td>
+                    <td style="text-align: center;"><span id="rdpTarget">N/A</span></td>
+                    <td>
+                      <div class="input-group">
+                        <input class="form-control form-control-sm deactivatable disabled" type="text" id="wrp" placeholder="Off" style="max-width: 100px;" disabled />
+                        <div class="input-group-append">
+                          <button class="btn btn-success btn-sm z-depth-0 m-0 deactivatable disabled" id="setp" disabled><i class="fa fa-check"></i></button>
+                          <button class="btn btn-danger btn-sm z-depth-0 m-0 deactivatable disabled" id="clrp" disabled><i class="fa fa-ban"></i></button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Fan</strong></td>
+                    <td></td>
+                    <td style="text-align: center;"><span id="fanAmount">Off</span></td>
+                    <td>
+                      <input type="range" class="custom-range deactivatable disabled" id="fanSlider" value="0" min="0" max="255" step="25.5" disabled>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="clearfix"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+  $('#sendRAWgCode').click(function() {
+    sendRawGCode();
+  });
+  $('#eStop').click(function() {
+    eStop();
+  });
+  $("#sete").click(function() {
+    setExtruderTemp();
+  });
+  $("#clre").click(function() {
+    clearExtruderTemp();
+  });
+  $("#setp").click(function() {
+    setBedTemp();
+  });
+  $("#clrp").click(function() {
+    clearBedTemp();
+  });
+  $('.homeIt').click(function() {
+    goHome(this);
+  });
+  $('.moveIt').click(function() {
+    move(this);
+  });
+  $("#pollingPrinter").change(function() {
+    pollingPrinterChanged(this);
+  });
+  $("#fanSlider").change(function() {
+    fanSpeedChanged(this);
+  });
+  $(document).ready(function() {
+    $("#dropzone").appendTo("#newDropzone").show();
+    setupPolling();
+    setupTempChart();
+  });
+  Dropzone.options.mydz = {
+    dictDefaultMessage: "Upload gcode here",
+    timeout: 0,
+    accept: function(file, done) {
+      if (file.name.includes(".g")) done();
+      else done("Not a valid gcode file.");
+    },
+    init: function() {
+      this.on('error', function(file, response) {
+        var errorMessage = response.errorMessage;
+        $(file.previewElement).find('.dz-error-message').text(errorMessage);
+      });
+      this.on("addedfile", function() {
+        if (this.files[1] != null) {
+          this.removeFile(this.files[0]);
+        }
+      });
+    }
+  };
+</script>
+
+</html>
